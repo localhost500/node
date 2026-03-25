@@ -1,0 +1,168 @@
+####Q1. Create web page (file1 & file2 append)
+
+###server.js -> File1.txt -> File2.txt ####
+
+const http = require('http');
+const fs = require('fs');
+
+http.createServer((req, res) => {
+
+  if (req.method === 'GET') {
+    res.writeHead(200, { 'Content-Type': 'text/html' });
+    res.end(`
+      <form method="POST">
+        First File: <input name="f1"><br><br>
+        Second File: <input name="f2"><br><br>
+        <button>Submit</button>
+      </form>
+    `);
+  }
+
+  if (req.method === 'POST') {
+    let data = '';
+
+    req.on('data', chunk => data += chunk);
+    req.on('end', () => {
+
+      let f1 = data.split('&')[0].split('=')[1];
+      let f2 = data.split('&')[1].split('=')[1];
+
+      fs.readFile(f1, 'utf8', (err, content) => {
+        fs.appendFile(f2, content, () => {
+          fs.unlink(f1, () => {
+            res.end('Done');
+          });
+        });
+      });
+    });
+  }
+
+}).listen(8080);
+
+console.log('Server running on http://localhost:8080');
+
+
+##Q2. Show Real Date & Time modules.js -> server.js ###
+
+### modules.js
+
+exports.getDateTime = function () {
+    return new Date().toString();
+};
+
+
+
+### server.js ###
+
+const http = require('http');        
+const myModule = require('./modules'); 
+
+const server = http.createServer((req, res) => {
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    res.write("Today's Date and Time:\n");
+    res.end(myModule.getDateTime());
+});
+
+server.listen(3000, () => {
+    console.log('Server running at http://localhost:3000');
+});
+
+
+
+
+### Q3. Call Back Event (main.js) #####
+
+const events = require('events');
+
+const eventEmitter = new events.EventEmitter();
+
+function myEventHandler() {
+    console.log('Event detected! Callback function executed.');
+}
+
+eventEmitter.on('myEvent', myEventHandler);
+
+console.log('Waiting for event...');
+
+setTimeout(() => {
+    eventEmitter.emit('myEvent');
+}, 2000);
+
+
+
+### Q4. Circumf of circle (app.js -> circle.js)########
+
+### node app.js ####
+
+const circle = require('./circle');
+
+const radius = 5;  
+
+console.log("Radius:", radius);
+
+const area = circle.area(radius);
+const circum = circle.circumference(radius);
+
+console.log("Area of Circle:", area);
+console.log("Circumference of Circle:", circum);
+
+
+### circle.js ###
+
+exports.area = function (r) {
+    if (isNaN(r) || r <= 0) {
+        return "Invalid radius";
+    }
+    return Math.PI * r * r;
+};
+
+exports.circumference = function (r) {
+    if (isNaN(r) || r <= 0) {
+        return "Invalid radius";
+    }
+    return 2 * Math.PI * r;
+};
+
+
+
+
+### Q5. Count No. of Occureances (data.txt -> wordcount.js) ###
+
+const fs = require('fs');
+
+const filename = 'data.txt';
+const word = 'Node';
+
+
+if (!word || typeof word !== 'string') {
+    console.log("Invalid word input");
+    return;
+}
+
+fs.readFile(filename, 'utf8', (err, data) => {
+    if (err) {
+        console.log("Error: File not found");
+        return;
+    }
+
+    const text = data.toLowerCase();
+    const searchWord = word.toLowerCase();
+
+    const wordsArray = text.split(/\s+/);
+    let count = 0;
+
+    wordsArray.forEach(w => {
+        if (w === searchWord) {
+            count++;
+        }
+    });
+
+    console.log(`Word "${word}" occurs ${count} times`);
+});
+
+
+
+
+
+
+

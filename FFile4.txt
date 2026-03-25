@@ -1,0 +1,547 @@
+### Q1. ExpressJS Login Form (views/login.html app.js)
+
+##views/login.html##
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login Page</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial;
+            background-color: #fff; /* simple white */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .login-box {
+            background: #fff;
+            padding: 20px;
+            width: 300px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 15px;
+            color: #1e3a8a;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0 10px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            width: 100%;
+            padding: 8px;
+            background: #2563eb;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="login-box">
+        <h2>User Login</h2>
+
+        <form>
+            <label>Username</label>
+            <input type="text" required>
+
+            <label>Password</label>
+            <input type="password" required>
+
+            <button>Login</button>
+        </form>
+    </div>
+
+</body>
+</html>
+
+
+### run app.js ###
+
+const express = require('express');
+const bodyParser = require('body-parser');
+
+const app = express();
+
+
+app.use(bodyParser.urlencoded({ extended: false }));
+
+
+app.get('/', (req, res) => {
+    res.sendFile(__dirname + '/views/login.html');
+});
+
+
+app.post('/login', (req, res) => {
+    const username = req.body.username;
+    const password = req.body.password;
+
+   
+    if (username.length > 6) {
+        res.send('Error: Username should not contain more than 6 characters');
+    } else {
+        res.send(
+            'Login Successful <br>' +
+            'Username: ' + username + '<br>' +
+            'Password: ' + password
+        );
+    }
+});
+
+// Server
+app.listen(5000, () => {
+    console.log('Server running on http://localhost:5000');
+});
+
+
+
+### Q2. Recipe Book ###
+
+public/style.css
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", Arial, sans-serif;
+  background: #f2f4f8;
+  color: #333;
+}
+
+.container {
+  width: 900px;
+  max-width: 95%;
+  margin: 40px auto;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+header h1 {
+  font-size: 36px;
+  color: #2c3e50;
+}
+
+.add-form {
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 10px;
+  display: flex;
+  gap: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.add-form input {
+  flex: 1;
+  padding: 12px;
+  font-size: 15px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.add-form button {
+  padding: 12px 20px;
+  background: #27ae60;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.add-form button:hover {
+  background: #219150;
+}
+
+.recipe-list {
+  margin-top: 30px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.recipe-card {
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+}
+
+.recipe-card h3 {
+  margin-top: 0;
+  color: #34495e;
+}
+
+.recipe-card a {
+  text-decoration: none;
+  color: #2980b9;
+  font-weight: bold;
+}
+
+.recipe-card p {
+  color: #666;
+}
+
+.delete-btn {
+  margin-top: 10px;
+  padding: 8px 12px;
+  background: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.delete-btn:hover {
+  background: #c0392b;
+}
+
+.back-link {
+  display: inline-block;
+  margin-top: 20px;
+  text-decoration: none;
+  color: #2980b9;
+}
+
+
+### views/home.ejs ###
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Recipe Book</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<div class="container">
+
+  <header>
+    <h1> Recipe Book</h1>
+    <p>Manage and explore your favorite recipes</p>
+  </header>
+
+  <form class="add-form" action="/add" method="POST">
+    <input type="text" name="name" placeholder="Recipe Name" required>
+    <input type="text" name="description" placeholder="Short Description" required>
+    <button type="submit">Add Recipe</button>
+  </form>
+
+  <div class="recipe-list">
+    <% recipes.forEach(recipe => { %>
+      <div class="recipe-card">
+        <h3>
+          <a href="/recipe/<%= recipe.id %>"><%= recipe.name %></a>
+        </h3>
+        <p><%= recipe.description %></p>
+
+        <form action="/delete/<%= recipe.id %>?_method=DELETE" method="POST">
+          <button class="delete-btn">Delete</button>
+        </form>
+      </div>
+    <% }) %>
+  </div>
+
+</div>
+
+</body>
+</html>
+
+
+### views/recipe.ejs ###
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Recipe Details</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<div class="container">
+  <div class="recipe-card">
+    <h2><%= recipe.name %></h2>
+    <p><%= recipe.description %></p>
+
+    <a class="back-link" href="/"> Back to Recipe Book</a>
+  </div>
+</div>
+
+</body>
+</html>
+
+
+
+
+### Run app.js ###
+
+const express = require("express");
+const methodOverride = require("method-override");
+const app = express();
+
+app.set("view engine", "ejs");
+
+app.use(express.urlencoded({ extended: true }));
+app.use(methodOverride("_method"));
+app.use(express.static("public"));
+
+let recipes = [
+  { id: 1, name: "Pasta", description: "Delicious Italian pasta" },
+  { id: 2, name: "Pizza", description: "Cheesy pizza with toppings" }
+];
+
+app.get("/", (req, res) => {
+  res.render("home", { recipes });
+});
+
+app.get("/recipe/:id", (req, res) => {
+  const recipe = recipes.find(r => r.id == req.params.id);
+  res.render("recipe", { recipe });
+});
+
+app.post("/add", (req, res) => {
+  const newRecipe = {
+    id: Date.now(),
+    name: req.body.name,
+    description: req.body.description
+  };
+  recipes.push(newRecipe);
+  res.redirect("/");
+});
+
+app.delete("/delete/:id", (req, res) => {
+  recipes = recipes.filter(r => r.id != req.params.id);
+  res.redirect("/");
+});
+
+app.listen(3001, () => {
+  console.log("Server running on http://localhost:3001");
+});
+
+
+
+
+
+#### Q3. download file on browser
+
+### files/.txt or .pdf
+
+### public/index.html
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>File Download</title>
+    <style>
+        body {
+            font-family: Arial;
+            text-align: center;
+            margin-top: 100px;
+        }
+
+        button {
+            padding: 12px 25px;
+            font-size: 18px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>File Download Application</h1>
+
+    <form action="/download" method="GET">
+        <button type="submit">Download File</button>
+    </form>
+
+</body>
+</html>
+
+
+
+
+
+#### run app.js ###
+
+const express = require('express');
+const path = require('path');
+const fs = require('fs');
+
+const app = express();
+const PORT = 3000;
+
+// Serve static files from public folder
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Route to display homepage
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// Download route
+app.get('/download', (req, res) => {
+
+    const filePath = path.join(__dirname, 'files', 'WF_Labbook.pdf');
+
+
+
+    // Check if file exists
+    fs.access(filePath, fs.constants.F_OK, (err) => {
+
+        if (err) {
+            return res.status(404).send("Error: File not found.");
+        }
+
+        // Force file download
+        res.download(filePath, 'Downloaded_File.pdf', (err) => {
+
+            if (err) {
+                console.error("Download error:", err);
+                res.status(500).send("Error while downloading file.");
+            }
+
+        });
+    });
+});
+
+// Handle invalid routes
+app.use((req, res) => {
+    res.status(404).send("404 - Page Not Found");
+});
+
+// Start server
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server running at http://localhost:${PORT}`);
+});
+
+
+
+
+### Q4. EJS template display data on next page ###
+
+
+### views/form.ejs
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Employee Form</title>
+</head>
+<body>
+
+    <h2>Employee Details Form</h2>
+
+    <form action="/submit" method="POST">
+
+        <label>Name:</label>
+        <input type="text" name="name" required><br><br>
+
+        <label>Employee ID:</label>
+        <input type="text" name="id" required><br><br>
+
+        <label>Department:</label>
+        <input type="text" name="department" required><br><br>
+
+        <label>Salary:</label>
+        <input type="number" name="salary" required><br><br>
+
+        <button type="submit">Submit</button>
+
+    </form>
+
+</body>
+</html>
+
+
+### views/result.ejs
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Employee Data</title>
+</head>
+<body>
+
+    <h2>Employee Submitted Details</h2>
+
+    <p><strong>Name:</strong> <%= data.name %></p>
+    <p><strong>Employee ID:</strong> <%= data.id %></p>
+    <p><strong>Department:</strong> <%= data.department %></p>
+    <p><strong>Salary:</strong> <%= data.salary %></p>
+
+    <br>
+    <a href="/">Go Back</a>
+
+</body>
+</html>
+
+
+
+
+### run app.js ###
+
+const express = require('express');
+const bodyParser = require('body-parser');
+const path = require('path');
+
+const app = express();
+const PORT = 4000;
+
+
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+
+
+app.use(bodyParser.urlencoded({ extended: true }));
+
+
+app.get('/', (req, res) => {
+    res.render('form');
+});
+
+
+app.post('/submit', (req, res) => {
+
+    const employeeData = {
+        name: req.body.name,
+        id: req.body.id,
+        department: req.body.department,
+        salary: req.body.salary
+    };
+
+    res.render('result', { data: employeeData });
+});
+
+
+app.listen(PORT, () => {
+    console.log(`Server running at http://localhost:${PORT}`);
+});
+
+
