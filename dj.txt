@@ -1,0 +1,221 @@
+python --version
+pip install Django
+django-admin --version
+django-admin startproject rkproject
+rkproject/
+    manage.py
+    rkproject/
+        settings.py
+        urls.py
+python manage.py migrate
+python manage.py runserver
+
+
+### Q1.to display “Hello,Welcome to School of Computer science at NWC” message using template.
+
+## rkproject/settings.py
+
+INSTALLED_APPS = [
+    'myapp',
+]
+
+## myapp/urls.py
+
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('', views.home),
+]
+
+## rkproject/urls.py
+
+from django.contrib import admin
+from django.urls import path, include
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('', include('myapp.urls')),
+]
+
+## myapp/views.py
+
+from django.shortcuts import render
+
+def home(request):
+    return render(request, 'myapp/home.html')
+
+ ### myapp/templates/myapp/home.html
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Home</title>
+</head>
+<body>
+    <h1>Hello Django Q1</h1>
+</body>
+</html>
+
+
+
+
+
+Q2. Multipage website(home,about,contact)
+
+## q2_webapp/views.py
+
+from django.shortcuts import render
+
+def home(request):
+    return render(request, 'q2_webapp/home.html')
+
+def about(request):
+    return render(request, 'q2_webapp/about.html')
+
+def contact(request):
+    return render(request, 'q2_webapp/contact.html')
+
+
+##q2_webapp/urls.py
+
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('', views.home),
+    path('about/', views.about),
+    path('contact/', views.contact),
+]
+
+## rkproject/urls.py
+
+from django.contrib import admin
+from django.urls import path, include
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('', include('q2_webapp.urls')),
+]
+
+## q2_webapp/templates/q2_webapp/
+
+##home.html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Home</title>
+</head>
+<body>
+    <h1>Home Page</h1>
+    <a href="/about/">About</a><br><br>
+    <a href="/contact/">Contact</a>
+</body>
+</html>
+
+##about.html
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>About</title>
+</head>
+<body>
+    <h1>About Page</h1>
+    <a href="/">Home</a><br><br>
+    <a href="/contact/">Contact</a>
+</body>
+</html>
+
+##contact.html
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Contact</title>
+</head>
+<body>
+    <h1>Contact Page</h1>
+    <a href="/">Home</a><br><br>
+    <a href="/about/">About</a>
+</body>
+</html>
+
+
+### Q3.page redirectionwhich contain at least two pages.
+
+##Q3_loginapp/views.py
+
+from django.shortcuts import render
+
+def login_view(request):
+    if request.method == "POST":
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+
+        if username == "admin" and password == "123":
+            return render(request, 'Q3_loginapp/success.html')
+        else:
+            return render(request, 'Q3_loginapp/login.html', {'error': 'Invalid Credentials'})
+
+    return render(request, 'Q3_loginapp/login.html')
+
+
+##Q3_loginapp/urls.py
+
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('', views.login_view),
+]
+
+
+## rkproject/urls.py
+
+from django.contrib import admin
+from django.urls import path, include
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('', include('Q3_loginapp.urls')),
+]
+
+
+Q3_loginapp/templates/Q3_loginapp/login.html
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+</head>
+<body>
+    <h2>Login Page</h2>
+
+    {% if error %}
+        <p style="color:red;">{{ error }}</p>
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+        Username: <input type="text" name="username"><br><br>
+        Password: <input type="password" name="password"><br><br>
+        <input type="submit" value="Login">
+    </form>
+</body>
+</html>
+
+
+3_loginapp/templates/Q3_loginapp/success.html
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Success</title>
+</head>
+<body>
+    <h1>Login Successful ✅</h1>
+</body>
+</html>
+
+
